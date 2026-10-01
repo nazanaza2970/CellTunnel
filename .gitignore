@@ -1,0 +1,7 @@
+laptop/celltun
+phone/.gradle/
+phone/app/build/
+phone/build/
+*.iml
+.idea/
+local.properties
