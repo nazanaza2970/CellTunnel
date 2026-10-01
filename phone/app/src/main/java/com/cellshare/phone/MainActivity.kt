@@ -60,10 +60,15 @@ class MainActivity : Activity() {
                 val v = convertView ?: layoutInflater.inflate(R.layout.item_device, parent, false)
                 val d = getItem(position)!!
                 val age = (System.currentTimeMillis() - d.lastSeen) / 1000
-                val target = if (d.lastTarget.isEmpty()) "-" else d.lastTarget
-                v.findViewById<TextView>(R.id.deviceText).text =
-                    "${d.address}  ·  ${d.activeConns} conn  ·  ${age}s ago\n" +
-                    "up ${human(d.bytesOut)}  ·  down ${human(d.bytesIn)}  ·  → $target"
+                val target = if (d.lastTarget.isEmpty()) "No active target" else "→ ${d.lastTarget}"
+
+                v.findViewById<TextView>(R.id.deviceAddress).text = d.address
+                v.findViewById<TextView>(R.id.deviceConnBadge).text = "${d.activeConns} conn"
+                v.findViewById<TextView>(R.id.deviceAge).text = "${age}s ago"
+                v.findViewById<TextView>(R.id.deviceBytesOut).text = human(d.bytesOut)
+                v.findViewById<TextView>(R.id.deviceBytesIn).text = human(d.bytesIn)
+                v.findViewById<TextView>(R.id.deviceTarget).text = target
+
                 return v
             }
         }
@@ -85,7 +90,7 @@ class MainActivity : Activity() {
 
     private fun toggle() {
         val intent = Intent(this, TunnelService::class.java)
-        if (running) intent.action = Intent.ACTION_STOP else intent.action = null
+        if (running) intent.action = TunnelService.ACTION_STOP else intent.action = null
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent) else startService(intent)
         running = !running
         updateButtons()
@@ -93,10 +98,22 @@ class MainActivity : Activity() {
 
     private fun updateButtons() {
         val btn = findViewById<Button>(R.id.btnToggle)
-        btn.text = if (running) "Stop tunnel" else "Start tunnel"
+        val statusDot = findViewById<View>(R.id.statusDot)
+        val statusHeader = findViewById<TextView>(R.id.statusHeader)
+        val statusText = findViewById<TextView>(R.id.status)
+
         if (running) {
-            findViewById<TextView>(R.id.status).text =
-                "Listening on port ${TunnelService.PORT} — connect your laptop via WiFi"
+            btn.text = "Stop tunnel"
+            btn.setBackgroundResource(R.drawable.bg_btn_stop)
+            statusDot?.setBackgroundResource(R.drawable.bg_status_dot_active)
+            statusHeader?.text = "TUNNEL ACTIVE"
+            statusText?.text = "Listening on port ${TunnelService.PORT} — connect laptop via WiFi"
+        } else {
+            btn.text = "Start tunnel"
+            btn.setBackgroundResource(R.drawable.bg_btn_primary)
+            statusDot?.setBackgroundResource(R.drawable.bg_status_dot_inactive)
+            statusHeader?.text = "TUNNEL STOPPED"
+            statusText?.text = "Tap below to start SOCKS5 tunnel"
         }
     }
 

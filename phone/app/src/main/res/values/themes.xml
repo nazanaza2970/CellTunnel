@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CellTunnel" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_main_gradient</item>
+        <item name="android:statusBarColor">@color/bg_dark_start</item>
+        <item name="android:navigationBarColor">@color/bg_dark_end</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

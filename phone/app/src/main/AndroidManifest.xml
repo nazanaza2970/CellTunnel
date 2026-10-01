@@ -11,7 +11,7 @@
     <application
         android:label="CellTunnel"
         android:allowBackup="false"
-        android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+        android:theme="@style/Theme.CellTunnel">
 
         <service
             android:name=".TunnelService"

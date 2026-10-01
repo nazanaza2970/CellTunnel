@@ -29,6 +29,7 @@ class TunnelService : Service() {
         const val PORT = 12345
         const val PREFS = "celltunnel"
         const val KEY_PASSWORD = "password"
+        const val ACTION_STOP = "com.cellshare.phone.ACTION_STOP"
         @Volatile var running = false; private set
     }
 
@@ -42,7 +43,7 @@ class TunnelService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == Intent.ACTION_STOP) {
+        if (intent?.action == ACTION_STOP) {
             stopSelf()
             return START_NOT_STICKY
         }
@@ -102,7 +103,7 @@ class TunnelService : Service() {
         pool.execute {
             while (!s.isClosed) {
                 val conn = runCatching { s.accept() }.getOrNull() ?: break
-                wifiNet?.let { cm.bindSocket(it, conn) }
+                wifiNet?.bindSocket(conn)
                 pool.execute { handle(conn) }
             }
         }
@@ -135,7 +136,7 @@ class TunnelService : Service() {
         val target = readAddress(input) ?: return
         val s = Socket()
         s.tcpNoDelay = true
-        mobileNet?.let { cm.bindSocket(it, s) }
+        mobileNet?.bindSocket(s)
         s.connect(InetSocketAddress(target.first, target.second), 10_000)
         DeviceTracker.setTarget(device, "${target.first}:${target.second}")
         reply(output, 0)

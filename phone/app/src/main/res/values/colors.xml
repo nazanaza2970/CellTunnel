@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background Gradient -->
+    <color name="bg_dark_start">#060C1B</color>
+    <color name="bg_dark_center">#0A162F</color>
+    <color name="bg_dark_end">#040813</color>
+
+    <!-- Glass Surface Surfaces -->
+    <color name="glass_surface">#22162947</color>
+    <color name="glass_surface_header">#331E355D</color>
+    <color name="glass_surface_input">#1F0E182E</color>
+    <color name="glass_surface_card">#2B152744</color>
+
+    <!-- Glass Borders & Strokes -->
+    <color name="glass_stroke">#3D4A71B0</color>
+    <color name="glass_stroke_bright">#6038BDF8</color>
+    <color name="glass_stroke_subtle">#2038BDF8</color>
+
+    <!-- Accents & Glows -->
+    <color name="cyan_accent">#38BDF8</color>
+    <color name="cyan_glow">#0EA5E9</color>
+    <color name="blue_primary">#2563EB</color>
+    <color name="blue_primary_dark">#0284C7</color>
+
+    <!-- Action Colors -->
+    <color name="stop_btn_start">#E11D48</color>
+    <color name="stop_btn_end">#9F1239</color>
+    <color name="emerald_active">#10B981</color>
+    <color name="emerald_glow">#34D399</color>
+
+    <!-- Typography -->
+    <color name="text_title">#F8FAFC</color>
+    <color name="text_body">#CBD5E1</color>
+    <color name="text_muted">#64748B</color>
+    <color name="text_accent">#38BDF8</color>
+</resources>
