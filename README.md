@@ -64,7 +64,33 @@ go build -o celltun .        # Linux
 go build -o celltun.exe .
 ```
 
-### Run
+The binary has two modes: **GUI** (no arguments) and **CLI** (any flag).
+
+### GUI (Wails)
+
+Running the binary with no arguments opens a small desktop app: input fields
+for every CLI flag, Start/Stop buttons, live status + process log, and a
+collapsible step-by-step connection guide. **Apply network setup / Undo**
+buttons run the TUN address/route/DNS commands for you (Linux needs the app
+launched with `sudo`; Windows needs admin).
+
+Build the GUI binary:
+
+- Linux: system packages `libgtk-3-dev libwebkit2gtk-4.1-dev libnotify-dev
+  libxss-dev`, then:
+
+  ```sh
+  cd laptop
+  go run github.com/wailsapp/wails/v2/cmd/wails@v2.16.0 build -tags webkit2_41
+  # output: build/bin/celltun
+  ```
+
+- Windows: same `wails build` command (no system packages needed).
+
+Run it: `./build/bin/celltun` (Linux, `sudo` for TUN creation) or
+`celltun.exe` in an elevated terminal (Windows).
+
+### CLI mode
 
 ```sh
 # Linux (TUN creation needs root):
@@ -131,8 +157,9 @@ There are no external dependencies beyond the Android platform itself.
 1. Phone: open **CellTunnel**, optionally type a password and **Save
    password**, then **Start tunnel**. A notification stays visible while it
    runs.
-2. Laptop: run `celltun` with the phone's WiFi IP (and password), then apply
-   the TUN/route/DNS commands above.
+2. Laptop: launch the GUI (no args) and press **Start tunnel** and
+   **Apply network setup**, or run the CLI with the phone's WiFi IP
+   (and password) and apply the TUN/route/DNS commands above.
 3. The phone UI now shows your laptop under **Connected devices** with live
    counters.
 4. To stop: **Stop tunnel** on the phone and/or Ctrl+C `celltun` on the

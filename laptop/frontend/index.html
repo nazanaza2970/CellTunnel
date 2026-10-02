@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CellTunnel</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+  <div class="bg">
+    <div class="glow g1"></div>
+    <div class="glow g2"></div>
+    <div class="glow g3"></div>
+    <div class="grain"></div>
+  </div>
+
+  <main>
+    <header>
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="21" stroke="rgba(140,180,255,0.35)" stroke-width="2"/>
+          <path d="M14 27a14 14 0 0 1 20 0" stroke="#7fb0ff" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M18.5 31.5a8 8 0 0 1 11 0" stroke="#9cc4ff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="24" cy="36" r="2.6" fill="#cfe4ff"/>
+        </svg>
+        <div>
+          <h1>CellTunnel</h1>
+          <p class="sub">laptop &rarr; phone &rarr; cellular data</p>
+        </div>
+      </div>
+      <div class="status">
+        <span id="pill" class="pill off">OFFLINE</span>
+        <span id="uptime" class="uptime"></span>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Tunnel</h2>
+        <span class="hint">runs the tunnel as a supervised background process</span>
+      </div>
+
+      <div class="grid">
+        <label class="field">
+          <span class="lbl">Phone address <em>(host:port over WiFi)</em></span>
+          <input id="proxy" type="text" placeholder="192.168.137.2:12345" spellcheck="false" autocomplete="off"/>
+        </label>
+        <label class="field">
+          <span class="lbl">Password <em>(empty for open access)</em></span>
+          <input id="pass" type="password" placeholder="set in the phone app" autocomplete="off"/>
+        </label>
+        <label class="field">
+          <span class="lbl">TUN device</span>
+          <input id="device" type="text" value="celltun" spellcheck="false" autocomplete="off"/>
+        </label>
+        <label class="field">
+          <span class="lbl">MTU</span>
+          <input id="mtu" type="number" value="1400" min="576" max="1500"/>
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="btnStart" class="btn primary">Start tunnel</button>
+        <button id="btnStop" class="btn" disabled>Stop</button>
+        <span class="spacer"></span>
+        <button id="btnApply" class="btn">Apply network setup</button>
+        <button id="btnUndo" class="btn">Undo</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+      <pre id="log" class="log" hidden></pre>
+    </section>
+
+    <section class="card">
+      <details id="guide" open>
+        <summary>
+          <svg class="chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Connection guide
+        </summary>
+        <ol class="steps">
+          <li class="step">
+            <h3>Turn on your laptop's WiFi hotspot</h3>
+            <p>The laptop becomes a tiny access point. The phone will join it as a normal WiFi client, so the carrier sees ordinary phone data &mdash; not hotspot data.</p>
+            <div class="cmds win-only">
+              <p>Windows: <b>Settings &rarr; Network &amp; internet &rarr; Mobile hotspot</b>, turn it on.</p>
+            </div>
+            <div class="cmds linux-only">
+              <div class="code"><code>nmcli device wifi hotspot ifname wlan0 ssid CellShare password mypass</code><button class="copy">copy</button></div>
+              <p class="hint">(adjust <code>wlan0</code> to your WiFi interface name)</p>
+            </div>
+          </li>
+          <li class="step">
+            <h3>Connect the phone to that hotspot</h3>
+            <p>On the phone, join the hotspot you just created. Keep the screen on, or disable battery optimization for the WiFi so it doesn't drop.</p>
+          </li>
+          <li class="step">
+            <h3>Start the tunnel on the phone</h3>
+            <p>Open the <b>CellTunnel</b> app on the phone. Set a password under <em>Authentication</em> if you want one, then press <b>Start tunnel</b>. The app stays listening on port 12345.</p>
+          </li>
+          <li class="step">
+            <h3>Find the phone's IP address</h3>
+            <p>Phone: <b>Settings &rarr; Wi-Fi &rarr; tap the connected network &rarr; IP address</b>. A Windows hotspot usually assigns <code>192.168.137.2</code>; a Linux <code>nmcli</code> hotspot uses its own range (check with <code>nmcli connection show</code>).</p>
+          </li>
+          <li class="step">
+            <h3>Start the tunnel here</h3>
+            <p>Enter the phone's address (and password, if set) in the form above and press <b>Start tunnel</b>. This creates the virtual <code>celltun</code> interface on the laptop.</p>
+          </li>
+          <li class="step">
+            <h3>Apply the network setup</h3>
+            <p>Press <b>Apply network setup</b> (needs sudo / admin), or run these manually:</p>
+            <div class="cmds linux-only">
+              <div class="code"><code>sudo ip addr add 198.18.0.1/32 dev celltun</code><button class="copy">copy</button></div>
+              <div class="code"><code>sudo ip route replace default dev celltun</code><button class="copy">copy</button></div>
+              <div class="code"><code>sudo sh -c 'echo "nameserver 1.1.1.1" &gt; /etc/resolv.conf'</code><button class="copy">copy</button></div>
+            </div>
+            <div class="cmds win-only">
+              <div class="code"><code>netsh interface ipv4 set address name="celltun" static 198.18.0.1 255.255.255.255</code><button class="copy">copy</button></div>
+              <div class="code"><code>netsh interface ipv4 add route 0.0.0.0 0.0.0.0 celltun</code><button class="copy">copy</button></div>
+              <div class="code"><code>netsh interface ipv4 set dns name="celltun" static 1.1.1.1</code><button class="copy">copy</button></div>
+              <p class="hint">(run in an elevated terminal)</p>
+            </div>
+          </li>
+          <li class="step">
+            <h3>Verify</h3>
+            <p>Open a browser and visit <code>ifconfig.me</code> &mdash; it should show your <b>cellular</b> IP, not your usual one. All laptop traffic now flows laptop &rarr; WiFi &rarr; phone &rarr; cellular.</p>
+            <div class="code"><code>curl ifconfig.me</code><button class="copy">copy</button></div>
+          </li>
+          <li class="step">
+            <h3>Stopping / undoing</h3>
+            <p>Press <b>Stop</b> to tear down the tunnel and <b>Undo</b> to remove the TUN address, default route and DNS override. Then switch the phone off the hotspot.</p>
+          </li>
+        </ol>
+        <details class="alt">
+          <summary>Alternative: phone on your home WiFi</summary>
+          <div class="step">
+            <p>If the phone is joined to the same home WiFi as the laptop, the same steps work &mdash; just use the phone's home-WiFi IP (from its WiFi details) instead of the hotspot IP. The carrier still sees the phone as a plain WiFi client.</p>
+          </div>
+        </details>
+      </details>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 laptop/celltun
+laptop/build/bin/
 phone/.gradle/
 phone/app/build/
 phone/build/
